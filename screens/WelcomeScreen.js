@@ -169,7 +169,9 @@ export default class WelcomeScreen extends React.Component{
                 {
                     this.showModal()
                 }
-                <AppHeader title="Welcome Screen" />
+                <View style={{backgroundColor:"#2089DC", width:"100%"}}>
+                    <Text style={{fontSize:20, fontWeight:'bold', color:'white', textAlign:'center', padding:10}}>Welcome Screen</Text>
+                </View>
                 
                 <View>
                     <TextInput 

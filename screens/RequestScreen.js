@@ -60,7 +60,12 @@ export default class RequestScreen extends React.Component{
         })
     }
 
+    createUniqueId() {
+        return Math.random().toString(36).substring(7);
+    }
+
     userSubmmit=async()=>{
+        var random = this.createUniqueId()
         if(this.state.problem===""){
             return Alert.alert("Input Box is empty")
         }else{
@@ -71,6 +76,7 @@ export default class RequestScreen extends React.Component{
                 address:this.state.address,
                 email_id:this.state.userId,
                 status:"requested",
+                request_id:random
             })
         }
     }
@@ -109,9 +115,9 @@ export default class RequestScreen extends React.Component{
     render(){
         if(this.state.value==="doctor"){
             return(
-                <KeyboardAvoidingView>
-                    <ScrollView style={{flex:1, backgroundColor:"#A0E5FF"}} >
-                        <AppHeader title="Requests Of Patients" />
+                <KeyboardAvoidingView style={{flex:1, backgroundColor:"#A0E5FF"}} >
+                    <ScrollView>
+                        <AppHeader title="Requests Of Patients" navigation={this.props.navigation}/>
                         <View>
                             {
                                 this.state.requests.length===0?(
@@ -134,7 +140,7 @@ export default class RequestScreen extends React.Component{
             return(
                 <KeyboardAvoidingView style={{flex:1, backgroundColor:"#A0E5FF"}} >
                     <ScrollView>
-                        <AppHeader title="Request Here" />
+                        <AppHeader title="Request Here" navigation={this.props.navigation} />
                         <View>
                             <TextInput
                                 placeholder="Write your problem here"

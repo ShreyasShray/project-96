@@ -5,7 +5,8 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
-    Alert
+    Alert,
+    ScrollView
 } from 'react-native';
 import AppHeader from '../components/AppHeader';
 import firebase from 'firebase';
@@ -17,7 +18,11 @@ export default class BuyMedicineScreen extends React.Component{
         super();
         this.state={
             userId:firebase.auth().currentUser.email,
-            medicine:'',
+            medicine1:'',
+            medicine2:'',
+            medicine3:'',
+            medicine4:'',
+            medicine5:'',
             first_name:'',
             last_name:'',
             contact:'',
@@ -27,11 +32,13 @@ export default class BuyMedicineScreen extends React.Component{
     }
 
     orderMedicine=async()=>{
-        if(this.state.medicine===''){
-            return Alert.alert("Input Box Empty")
-        }else{
+        if(this.state.medicine1!==""){
             db.collection("orders").add({
-                medicine:this.state.medicine,
+                medicine1:this.state.medicine1,
+                medicine2:this.state.medicine2,
+                medicine3:this.state.medicine3,
+                medicine4:this.state.medicine4,
+                medicine5:this.state.medicine5,
                 name:this.state.value + " " + this.state.first_name + " " + this.state.last_name,
                 contact:this.state.contact,
                 address:this.state.address,
@@ -68,12 +75,36 @@ export default class BuyMedicineScreen extends React.Component{
 
     render(){
         return(
-            <View>
-                <AppHeader title="Order Medicine Here" />
+            <ScrollView>
+                <AppHeader title="Order Medicine Here" navigation={this.props.navigation} />
                 <View>
                     <TextInput
                         placeholder="Medicine name    pcs"
-                        onChangeText={(text)=>{this.setState({medicine:text})}}
+                        onChangeText={(text)=>{this.setState({medicine1:text})}}
+                        style={styles.inputBox}
+                        multiline={true}
+                    />
+                    <TextInput
+                        placeholder="Medicine name    pcs"
+                        onChangeText={(text)=>{this.setState({medicine2:text})}}
+                        style={styles.inputBox}
+                        multiline={true}
+                    />
+                    <TextInput
+                        placeholder="Medicine name    pcs"
+                        onChangeText={(text)=>{this.setState({medicine3:text})}}
+                        style={styles.inputBox}
+                        multiline={true}
+                    />
+                    <TextInput
+                        placeholder="Medicine name    pcs"
+                        onChangeText={(text)=>{this.setState({medicine4:text})}}
+                        style={styles.inputBox}
+                        multiline={true}
+                    />
+                    <TextInput
+                        placeholder="Medicine name    pcs"
+                        onChangeText={(text)=>{this.setState({medicine5:text})}}
                         style={styles.inputBox}
                         multiline={true}
                     />
@@ -84,7 +115,7 @@ export default class BuyMedicineScreen extends React.Component{
                         <Text style={styles.buttonText}>Order</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -105,6 +136,7 @@ const styles = StyleSheet.create({
         padding:10,
         backgroundColor:"#0070FF",
         marginTop:60,
+        marginBottom:30,
         width:240,
         alignItems:'center',
         borderRadius:14,

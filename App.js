@@ -8,53 +8,81 @@ import WelcomeScreen from './screens/WelcomeScreen';
 import RequestScreen from './screens/RequestScreen';
 import BuyMedicineScreen from './screens/BuyMedicineScreen';
 import PatientDetailsScreen from './screens/PatientDetailsScreen';
+import MyConsultations from './screens/MyConsultations';
+import SettingScreen from './screens/SettingScreen';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
+import { createDrawerNavigator } from 'react-navigation-drawer';
+import CustomSideBarMenu from './components/CustomSideBarMenu';
 
 export default class App extends React.Component{
   render(){
     return(
       <AppContainer/>
-    );
+      );
+    }
   }
-}
+  
+  const AppStackNavigator = createStackNavigator({
+    RequestScreen:{
+      screen:RequestScreen,
+      navigationOptions:{
+        headerShown:false
+      }
+    },
+    PatientDetailsScreen:{
+      screen:PatientDetailsScreen,
+      navigationOptions:{
+        headerTitle:"Details"
+      }
+    }
+  })
 
-const AppStackNavigator = createStackNavigator({
-  RequestScreen:{
-    screen:RequestScreen,
+  const AppTabNavigator = createBottomTabNavigator({
+    StackNavigator:{
+      screen:AppStackNavigator,
+      navigationOptions :{
+        tabBarIcon : <Image source={require("./components/request.png")} style={{width:30, height:30}}/>,
+        tabBarLabel : " ",
+      }
+    },
+    BuyMedicineScreen:{
+      screen:BuyMedicineScreen,
+      navigationOptions:{
+        tabBarIcon: <Image source={require("./components/medicine.png")} style={{width:34, height:34}} />,
+        tabBarLabel: " "
+      }
+    }
+  })
+
+const AppDrawerNavigator = createDrawerNavigator({
+  Home:{
+    screen:AppTabNavigator
+  },
+  MyConsultations:{
+    screen:MyConsultations,
     navigationOptions:{
-      headerShown:false
+      drawerLabel:"My Consultations"
     }
   },
-  PatientDetailsScreen:{
-    screen:PatientDetailsScreen,
+  SettingScreen:{
+    screen:SettingScreen,
     navigationOptions:{
-      headerTitle:"Details"
+      drawerLabel:"Update Profile"
     }
   }
-})
-
-const AppTabNavigator = createBottomTabNavigator({
-  StackNavigator:{
-    screen:AppStackNavigator,
-    navigationOptions :{
-      tabBarIcon : <Image source={require("./components/request.png")} style={{width:30, height:30}}/>,
-      tabBarLabel : " ",
-    }
+},
+  {
+    contentComponent:CustomSideBarMenu
   },
-  BuyMedicineScreen:{
-    screen:BuyMedicineScreen,
-    navigationOptions:{
-      tabBarIcon: <Image source={require("./components/medicine.png")} style={{width:34, height:34}} />,
-      tabBarLabel: " "
-    }
-  }
-})
+)
+
+
 
 const SwitchNavigator = createSwitchNavigator({
-  WelcomeScreem:{screen:WelcomeScreen},
-  AppTabNavigator:{screen:AppTabNavigator}
+  WelcomeScreen:{screen:WelcomeScreen},
+  AppTabNavigator:{screen:AppDrawerNavigator}
 })
 
 

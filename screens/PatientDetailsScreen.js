@@ -3,7 +3,9 @@ import {
     View,
     Text,
     KeyboardAvoidingView,
-    ScrollView
+    ScrollView,
+    TouchableOpacity,
+    StyleSheet
 } from 'react-native';
 import {Card} from 'react-native-elements';
 import firebase from 'firebase';
@@ -21,6 +23,27 @@ export default class PatientDetailsScreen extends React.Component{
             patient_address:this.props.navigation.getParam("details")["address"],
             userId:firebase.auth().currentUser.email
         }
+    }
+
+    helpPatient=async()=>{
+        db.collection("accepted_request").add({
+            doctor_id:this.state.userId,
+            patient_id:this.props.navigation.getParam("details")["email_id"],
+            request_id:this.props.navigation.getParam("details")["request_id"],
+            patient_name:this.state.patient_name,
+            patient_address:this.state.patient_address,
+            patient_contact:this.state.patient_contact,
+            patient_problem:this.state.patient_problem
+        })
+        db.collection("requests").where("request_id", "==", this.props.navigation.getParam("details")["request_id"])
+        .get()
+        .then((snapshot)=>{
+            snapshot.forEach((doc)=>{
+                db.collection("requests").doc(doc.id).update({
+                    status:"request_accepted"
+                })
+            })
+        })
     }
 
     render(){
@@ -42,8 +65,40 @@ export default class PatientDetailsScreen extends React.Component{
                             <Text>Address: {this.state.patient_address}</Text>
                         </Card>
                     </Card>
+                    <View>
+                        <TouchableOpacity
+                            style={styles.buttonStyle}
+                            onPress={()=>{
+                                this.helpPatient()
+                                this.props.navigation.navigate("MyConsultations")
+                            }}
+                        >
+                            <Text style={styles.buttonText}>Help patient</Text>
+                        </TouchableOpacity>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    buttonStyle:{
+        alignSelf:'center',
+        padding:10,
+        backgroundColor:"#0070FF",
+        marginTop:60,
+        width:240,
+        alignItems:'center',
+        borderRadius:14,
+        shadowColor:"black",
+        shadowOffset:{width:0, height:8},
+        shadowOpacity:0.44,
+        elevation:0.40,
+    },
+    buttonText:{
+        color:"white",
+        fontSize:20,
+        fontWeight:'bold'
+    }
+})
