@@ -10,11 +10,14 @@ import BuyMedicineScreen from './screens/BuyMedicineScreen';
 import PatientDetailsScreen from './screens/PatientDetailsScreen';
 import MyConsultations from './screens/MyConsultations';
 import SettingScreen from './screens/SettingScreen';
+import NotificationScreen from './screens/NotificationScreen';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import CustomSideBarMenu from './components/CustomSideBarMenu';
+import MyOrders from './screens/MyOrders';
+import MyOrderDetails from './screens/MyOrderDetails';
 
 export default class App extends React.Component{
   render(){
@@ -23,6 +26,21 @@ export default class App extends React.Component{
       );
     }
   }
+
+  const MyOrderStackNavigator = createStackNavigator({
+    MyOrders:{
+      screen:MyOrders,
+      navigationOptions:{
+        headerShown:false
+      }
+    },
+    MyOrderDetails:{
+      screen:MyOrderDetails,
+      navigationOptions:{
+        headerTitle:"My Order Details"
+      }
+    }
+  })
   
   const AppStackNavigator = createStackNavigator({
     RequestScreen:{
@@ -70,6 +88,18 @@ const AppDrawerNavigator = createDrawerNavigator({
     screen:SettingScreen,
     navigationOptions:{
       drawerLabel:"Update Profile"
+    }
+  },
+  NotificationScreen:{
+    screen:NotificationScreen,
+    navigationOptions:{
+      drawerLabel:"Notifications"
+    }
+  },
+  MyOrders:{
+    screen:MyOrderStackNavigator,
+    navigationOptions:{
+      drawerLabel:"My Orders"
     }
   }
 },

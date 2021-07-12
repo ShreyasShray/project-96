@@ -34,19 +34,18 @@ export default class BuyMedicineScreen extends React.Component{
     orderMedicine=async()=>{
         if(this.state.medicine1!==""){
             db.collection("orders").add({
-                medicine1:this.state.medicine1,
-                medicine2:this.state.medicine2,
-                medicine3:this.state.medicine3,
-                medicine4:this.state.medicine4,
-                medicine5:this.state.medicine5,
+                medicines:[this.state.medicine1, this.state.medicine2, this.state.medicine3, this.state.medicine4, this.state.medicine5],
                 name:this.state.value + " " + this.state.first_name + " " + this.state.last_name,
                 contact:this.state.contact,
                 address:this.state.address,
-                email_id:this.state.userId
+                email_id:this.state.userId,
+                status:"ordered",
+                date: firebase.firestore.Timestamp.now().seconds
             })
             .then(()=>{
                 return Alert.alert("Order Placed")
             })
+            this.props.navigation.navigate("MyOrders")
         }
     }   
 

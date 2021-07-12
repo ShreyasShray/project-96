@@ -25,7 +25,12 @@ export default class PatientDetailsScreen extends React.Component{
         }
     }
 
+    createUniqueId() {
+        return Math.random().toString(36).substring(7);
+    }
+
     helpPatient=async()=>{
+        var userData;
         db.collection("accepted_request").add({
             doctor_id:this.state.userId,
             patient_id:this.props.navigation.getParam("details")["email_id"],
@@ -33,7 +38,8 @@ export default class PatientDetailsScreen extends React.Component{
             patient_name:this.state.patient_name,
             patient_address:this.state.patient_address,
             patient_contact:this.state.patient_contact,
-            patient_problem:this.state.patient_problem
+            patient_problem:this.state.patient_problem,
+            patient_status:this.props.navigation.getParam("details")["status"]
         })
         db.collection("requests").where("request_id", "==", this.props.navigation.getParam("details")["request_id"])
         .get()
@@ -44,12 +50,29 @@ export default class PatientDetailsScreen extends React.Component{
                 })
             })
         })
+        db.collection("users").where("email_id", "==", this.state.userId)
+        .get()
+        .then((snapshot)=>{
+            snapshot.forEach((doc)=>{
+                userData=doc.data()
+            })
+        })
+        .then(()=>{
+            var random = this.createUniqueId()
+            db.collection("notifications").add({
+                doctor_name:userData.first_name + " " + userData.last_name,
+                doctor_id:this.state.userId,
+                status:"unread",
+                notification_id:random,
+                targated_user_id:this.props.navigation.getParam("details")["email_id"],
+                message:"Doctor " + userData.first_name + " " + userData.last_name + " has shown interest in your problem"
+            })
+        })
     }
 
     render(){
         return(
             <KeyboardAvoidingView style={{flex:1, backgroundColor:"#A0E5FF"}}>
-                <AppHeader title="Patient Details" />
                 <ScrollView>
                     <Card>
                         <Card>

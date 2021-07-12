@@ -78,6 +78,9 @@ export default class RequestScreen extends React.Component{
                 status:"requested",
                 request_id:random
             })
+            .then(()=>{
+                return Alert.alert("Request Done")
+            })
         }
     }
 
@@ -145,6 +148,7 @@ export default class RequestScreen extends React.Component{
                             <TextInput
                                 placeholder="Write your problem here"
                                 multiline={true}
+                                value={this.state.problem}
                                 style={styles.inputBox}
                                 onChangeText={(text)=>{this.setState({problem:text})}}
                             />
@@ -152,7 +156,10 @@ export default class RequestScreen extends React.Component{
                         <View>
                             <TouchableOpacity
                                 style={styles.buttonStyle}
-                                onPress={()=>{this.userSubmmit()}}
+                                onPress={()=>{
+                                    this.userSubmmit()
+                                    this.setState({problem:''})
+                                }}
                             >
                                 <Text style={styles.buttonText} >Submmit</Text>
                             </TouchableOpacity>

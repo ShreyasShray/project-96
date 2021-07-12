@@ -7,69 +7,73 @@ import {
     FlatList,
     ScrollView
 } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { Icon, ListItem } from 'react-native-elements';
 import firebase from 'firebase';
 import db from '../config';
 import AppHeader from '../components/AppHeader';
 
-export default class MyConsultations extends React.Component{
+export default class MyConsultations extends React.Component {
 
-    constructor(){
+    constructor() {
         super();
-        this.state={
-            userId:firebase.auth().currentUser.email,
-            allPatients:[],
-            MyRequests:[],
-            value:""
+        this.state = {
+            userId: firebase.auth().currentUser.email,
+            allPatients: [],
+            MyRequests: [],
+            value: ""
         },
-        this.requestRef=null,
-        this.myRequestRef=null
+            this.requestRef = null,
+            this.myRequestRef = null
     }
 
-    getUserData=()=>{
+    createUniqueId() {
+        return Math.random().toString(36).substring(7);
+    }
+
+    getUserData = () => {
         db.collection("users").where("email_id", "==", this.state.userId)
-        .get()
-        .then((snapshot)=>{
-            snapshot.forEach((doc)=>{
-                this.setState({value:doc.data().value})
-                console.log(this.state.value)
+            .get()
+            .then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    this.setState({ value: doc.data().value })
+                    console.log(this.state.value)
+                })
             })
-        })
     }
 
-    getMyRequests=async()=>{
-        this.myRequestRef = db.collection("requests").where("email_id", "==", this.state.userId)
-        .onSnapshot((snapshot)=>{
-            var requests = snapshot.docs.map((doc)=>{return doc.data()})
-            this.setState({MyRequests:requests})
-            console.log(this.state.MyRequests)
-        })
+    getMyRequests = async () => {
+        this.myRequestRef = db.collection("accepted_request").where("patient_id", "==", this.state.userId)
+            .onSnapshot((snapshot) => {
+                var requests = snapshot.docs.map((doc) => { return doc.data() })
+                this.setState({ MyRequests: requests })
+                console.log(this.state.MyRequests)
+            })
     }
 
-    getMyPatients=async()=>{
+    getMyPatients = async () => {
         this.requestRef = db.collection("accepted_request").where("doctor_id", "==", this.state.userId)
-        .onSnapshot((snapshot)=>{
-            var patients = snapshot.docs.map((doc)=>{return doc.data()})
-            console.log(patients)
-            this.setState({allPatients:patients})
-        })
+            .onSnapshot((snapshot) => {
+                var patients = snapshot.docs.map((doc) => { return doc.data() })
+                console.log(patients)
+                this.setState({ allPatients: patients })
+            })
     }
 
-    componentDidMount=()=>{
+    componentDidMount = () => {
         this.getMyPatients()
         this.getUserData()
         this.getMyRequests()
     }
 
-    componentWillUnmount=()=>{
+    componentWillUnmount = () => {
         this.requestRef()
         this.myRequestRef()
     }
 
-    keyExtractor1=(item, index)=> index.toString()
+    keyExtractor1 = (item, index) => index.toString()
 
-    renderItem1=({item, i})=>{
-        return(
+    renderItem1 = ({ item, i }) => {
+        return (
             <ListItem
                 key={i}
                 title={item.patient_name}
@@ -83,31 +87,54 @@ export default class MyConsultations extends React.Component{
         );
     }
 
-    keyExtractor=(item, index)=> index.toString()
+    keyExtractor = (item, index) => index.toString()
 
-    renderItem=({item, i})=>{
-        return(
+    renderItem = ({ item, i }) => {
+        return (
             <ListItem
-            key={i}
-            title={item.problem}
-            subtitle={item.status}
-            titleStyle={{ color: "black", fontWeight: "bold" }}
-            bottomDivider
+                key={i}
+                title={item.patient_problem}
+                titleStyle={{ color: "black", fontWeight: "bold" }}
+                rightElement={
+                    <TouchableOpacity style={styles.buttonStyle} onPress={() => {
+                        db.collection("requests").where("request_id", "==", item.request_id)
+                            .get()
+                            .then((snapshot) => {
+                                snapshot.forEach((doc) => {
+                                    if (doc.data().status !== "Fine") {
+                                        db.collection("requests").doc(doc.id).update({
+                                            status: "Fine"
+                                        })
+                                        db.collection("notifications").add({
+                                            notification_id: this.createUniqueId(),
+                                            patient_name: item.patient_name,
+                                            targated_user_id: item.doctor_id,
+                                            message: "Your patient " + item.patient_name + " is fine now, thank you for your help.",
+                                            status: "unread"
+                                        })
+                                    }
+                                })
+                            })
+                    }}>
+                        <Text style={styles.buttonText}>I am Fine now</Text>
+                    </TouchableOpacity>
+                }
+                bottomDivider
             ></ListItem>
         );
     }
 
-    render(){
-        if(this.state.value==="doctor"){
-            return(
-                <ScrollView style={{flex:1, backgroundColor:"#A0E5FF"}}>
-                    <AppHeader title="My Patients" navigation={this.props.navigation}/> 
+    render() {
+        if (this.state.value === "doctor") {
+            return (
+                <ScrollView style={{ flex: 1, backgroundColor: "#A0E5FF" }}>
+                    <AppHeader title="My Patients" navigation={this.props.navigation} />
                     {
-                        this.state.allPatients.length===0?(
+                        this.state.allPatients.length === 0 ? (
                             <View>
-                                <Text style={{marginTop:200, textAlign:'center', fontSize:20}}>No Patients</Text>
+                                <Text style={{ marginTop: 200, textAlign: 'center', fontSize: 20 }}>No Patients</Text>
                             </View>
-                        ):(
+                        ) : (
                             <FlatList
                                 keyExtractor={this.keyExtractor1}
                                 data={this.state.allPatients}
@@ -117,16 +144,16 @@ export default class MyConsultations extends React.Component{
                     }
                 </ScrollView>
             );
-        }else if(this.state.value==="patient"){
-            return(
-                <ScrollView style={{flex:1, backgroundColor:"#A0E5FF"}}>
+        } else if (this.state.value === "patient") {
+            return (
+                <ScrollView style={{ flex: 1, backgroundColor: "#A0E5FF" }}>
                     <AppHeader title="My Requests" navigation={this.props.navigation} />
                     {
-                        this.state.MyRequests.length===0?(
+                        this.state.MyRequests.length === 0 ? (
                             <View>
-                                <Text style={{marginTop:200, textAlign:'center', fontSize:20}}>No Requests</Text>
+                                <Text style={{ marginTop: 200, textAlign: 'center', fontSize: 20 }}>No Requests</Text>
                             </View>
-                        ):(
+                        ) : (
                             <FlatList
                                 keyExtractor={this.keyExtractor}
                                 data={this.state.MyRequests}
@@ -134,14 +161,39 @@ export default class MyConsultations extends React.Component{
                             ></FlatList>
                         )
                     }
+                    <View style={{ display: "flex", flexDirection: 'row' }}>
+                        <Icon name="info-circle" type="font-awesome" />
+                        <Text style={{ textAlign: 'center', fontSize: 18 }}>There Will be only the list of Consultations which are accepted by some doctors</Text>
+                    </View>
                 </ScrollView>
             );
-        }else{
-            return(
-                <View style={{flex:1, backgroundColor:"#A0E5FF"}}>
-                    <Text style={{marginTop:200, textAlign:'center', fontSize:20}}>Loading...</Text>
+        } else {
+            return (
+                <View style={{ flex: 1, backgroundColor: "#A0E5FF" }}>
+                    <Text style={{ marginTop: 200, textAlign: 'center', fontSize: 20 }}>Loading...</Text>
                 </View>
             );
         }
     }
 }
+
+const styles = StyleSheet.create({
+    buttonStyle: {
+        alignSelf: 'center',
+        padding: 10,
+        backgroundColor: "#0070FF",
+        marginTop: 0,
+        width: 120,
+        alignItems: 'center',
+        borderRadius: 14,
+        shadowColor: "black",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.44,
+        elevation: 0.40,
+    },
+    buttonText: {
+        color: "white",
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+})
